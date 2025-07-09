@@ -386,6 +386,23 @@
             color: #ffffff;
             text-align: center;
             position: relative;
+        }
+        
+        /* Typing animation and cursor */
+        .typing-text {
+            display: inline-block;
+            white-space: nowrap;
+            overflow: hidden;
+            border-right: 3px solid white;
+            animation: typing-cursor 0.7s step-end infinite;
+        }
+        
+        @keyframes typing-cursor {
+            from, to { border-color: transparent; }
+            50% { border-color: white; }
+        }
+        
+        .input-text {
             z-index: 1;
         }
 
@@ -760,28 +777,52 @@
     <div class="export-modal" id="exportModal">
         <div class="export-modal-content">
             <h2>Export Your Animation</h2>
-            <div class="export-options">
-                <div class="export-option" onclick="selectExportOption('mp4')">
-                    <h3>MP4</h3>
-                    <p>1920x1080</p>
+            <div id="export-options-container">
+                <div class="export-options">
+                    <div class="export-option" onclick="selectExportOption('mp4')">
+                        <h3>MP4</h3>
+                        <p>1920x1080</p>
+                    </div>
+                    <div class="export-option" onclick="selectExportOption('webm')">
+                        <h3>WebM</h3>
+                        <p>With Alpha</p>
+                    </div>
+                    <div class="export-option" onclick="selectExportOption('gif')">
+                        <h3>GIF</h3>
+                        <p>Animated</p>
+                    </div>
                 </div>
-                <div class="export-option" onclick="selectExportOption('webm')">
-                    <h3>WebM</h3>
-                    <p>With Alpha</p>
+                <button class="btn" id="start-export-btn" onclick="startExport()">Start Export</button>
+                <button class="btn btn-secondary" onclick="closeExportModal()">Cancel</button>
+            </div>
+            
+            <div id="export-progress" style="display: none;">
+                <div id="recording-indicator" style="display: none; margin-bottom: 15px;">
+                    <div class="recording-dot" style="display: inline-block; width: 12px; height: 12px; background-color: red; border-radius: 50%; margin-right: 8px; animation: pulse 1s infinite;"></div>
+                    <span style="color: red; font-weight: bold;">RECORDING</span>
                 </div>
-                <div class="export-option" onclick="selectExportOption('gif')">
-                    <h3>GIF</h3>
-                    <p>Animated</p>
+                <p id="export-status">Preparing to export...</p>
+                <div class="progress-bar" id="progressBar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <p><small>Please keep this tab open. Video export may take a few minutes.</small></p>
+                <div id="download-container" style="display: none; margin-top: 20px;">
+                    <a id="download-link" class="btn" download>Download Video</a>
+                    <button class="btn btn-secondary" onclick="closeExportModal()">Close</button>
                 </div>
             </div>
-            <button class="btn" onclick="startExport()">Start Export</button>
-            <button class="btn btn-secondary" onclick="closeExportModal()">Cancel</button>
-            <div class="progress-bar" id="progressBar">
-                <div class="progress-fill" id="progressFill"></div>
-            </div>
+            
+            <style>
+                @keyframes pulse {
+                    0% { opacity: 1; }
+                    50% { opacity: 0.5; }
+                    100% { opacity: 1; }
+                }
+            </style>
         </div>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script>
         let backgroundMedia = null;
         let selectedExportFormat = 'mp4';
@@ -934,28 +975,55 @@
             // --- INPUT ANIMATION ---
             const inputPill = document.createElement('div');
             inputPill.className = 'input-pill';
-            inputPill.textContent = inputText;
             inputPill.style.setProperty('--gradient-start', gradientStartColor);
             inputPill.style.setProperty('--gradient-end', gradientEndColor);
+            
+            // Create typing text element
+            const typingTextElement = document.createElement('span');
+            typingTextElement.className = 'typing-text';
+            typingTextElement.textContent = inputText;
+            inputPill.appendChild(typingTextElement);
             
             const inputRotateX = document.getElementById('inputRotateX').value;
             const inputRotateY = document.getElementById('inputRotateY').value;
             inputPill.style.transform = `rotateX(${inputRotateX}deg) rotateY(${inputRotateY}deg)`;
 
+            // Use the actual input delay value from the slider
+            const inputDelayValue = parseFloat(document.getElementById('inputDelay').value) * 1000; // Convert to ms
+            
             const inputRevealTimeout = setTimeout(() => {
                 animationStage.style.justifyContent = inputPosition;
                 animationStage.appendChild(inputPill);
                 inputPill.style.animation = `reveal ${animationDuration}s cubic-bezier(0.2, 0.8, 0.2, 1) forwards`;
-            }, inputInitialDelay);
+                
+                // Start typing animation after the pill appears
+                setTimeout(() => {
+                    // Calculate typing speed based on text length
+                    const typingDuration = Math.min(inputText.length * 50, animationDuration * 500); // 50ms per character, capped
+                    
+                    // Animate typing with CSS transition
+                    typingTextElement.style.transition = `width ${typingDuration}ms steps(${inputText.length}, end)`;
+                    typingTextElement.style.width = '0';
+                    
+                    // Force reflow
+                    void typingTextElement.offsetWidth;
+                    
+                    // Start typing animation
+                    typingTextElement.style.width = '100%';
+                }, 200); // Small delay after pill appears
+            }, inputDelayValue); // Use the actual input delay value
             animationTimeouts.push(inputRevealTimeout);
 
+            // Calculate typing duration for fade-out timing
+            const typingDuration = Math.min(inputText.length * 50, animationDuration * 500); // Same calculation as above
+            
             const inputFadeOutTimeout = setTimeout(() => {
                 inputPill.style.animation = `inputFadeOut ${animationDuration * 0.8}s cubic-bezier(0.4, 0, 0.2, 1) forwards`;
-            }, inputInitialDelay + (animationDuration * 1000) + 500);
+            }, inputDelayValue + (animationDuration * 1000) + typingDuration + 500);
             animationTimeouts.push(inputFadeOutTimeout);
             
             // --- RESPONSE ANIMATION ---
-            const totalInputAnimationTime = inputInitialDelay + (animationDuration * 1000) + 500 + (animationDuration * 0.8 * 1000);
+            const totalInputAnimationTime = inputDelayValue + (animationDuration * 1000) + typingDuration + 500 + (animationDuration * 0.8 * 1000);
 
             const responseRevealTimeout = setTimeout(() => {
                 const responseDocument = document.createElement('div');
@@ -1082,26 +1150,220 @@
             event.target.closest('.export-option').classList.add('selected');
         }
 
-        function startExport() {
-            const progressBar = document.getElementById('progressBar');
-            const progressFill = document.getElementById('progressFill');
+        // Global variables for video export
+        let mediaRecorder;
+        let recordedChunks = [];
+        let recordingCanvas;
+        let recordingStream;
+        let recordingStartTime;
+        let animationDuration = 0;
+        let exportFormat = 'mp4';
+
+        async function startExport() {
+            // Hide options and show progress
+            document.getElementById('export-options-container').style.display = 'none';
+            document.getElementById('export-progress').style.display = 'block';
             
-            progressBar.style.display = 'block';
+            updateExportStatus('Preparing animation...');
+            setProgress(10);
             
-            // Simulate export progress
-            let progress = 0;
-            const interval = setInterval(() => {
-                progress += 5;
-                progressFill.style.width = progress + '%';
+            try {
+                // Reset animation and prepare for recording
+                resetAnimation();
+                recordedChunks = [];
                 
-                if (progress >= 100) {
-                    clearInterval(interval);
+                // Calculate total animation duration
+                const inputText = document.getElementById('inputText').value;
+                const responseText = document.getElementById('responseText').value;
+                const animDuration = parseFloat(document.getElementById('animationDuration').value);
+                const inputDelayValue = parseFloat(document.getElementById('inputDelay').value);
+                const responseDelayValue = parseFloat(document.getElementById('responseDelay').value);
+                
+                // Estimate total animation time (in seconds)
+                let totalDuration = inputDelayValue + (animDuration * 2); // Input animation
+                totalDuration += Math.max(responseDelayValue, animDuration); // Response delay
+                totalDuration += animDuration * 1.2; // Response reveal
+                
+                // Add time for text scrolling if needed (estimate)
+                const avgReadingSpeed = 0.3; // seconds per word
+                const wordCount = responseText.split(/\s+/).length;
+                const readingTime = wordCount * avgReadingSpeed;
+                totalDuration += readingTime;
+                
+                // Add fade out time
+                totalDuration += animDuration;
+                
+                // Add a buffer
+                totalDuration += 1;
+                
+                animationDuration = totalDuration * 1000; // Convert to milliseconds
+                
+                // Set up canvas for recording
+                const videoContainer = document.getElementById('video-container');
+                
+                // Create a canvas that matches the size of the video container
+                recordingCanvas = document.createElement('canvas');
+                recordingCanvas.width = videoContainer.offsetWidth;
+                recordingCanvas.height = videoContainer.offsetHeight;
+                
+                // Get the canvas context for drawing
+                const ctx = recordingCanvas.getContext('2d');
+                
+                // Start the MediaRecorder
+                try {
+                    // Get the stream from the canvas
+                    recordingStream = recordingCanvas.captureStream(30); // 30 FPS
+                    
+                    // Create MediaRecorder
+                    const options = { mimeType: 'video/webm;codecs=vp9' };
+                    mediaRecorder = new MediaRecorder(recordingStream, options);
+                    
+                    // Set up event handlers
+                    mediaRecorder.ondataavailable = handleDataAvailable;
+                    mediaRecorder.onstop = finalizeRecording;
+                    
+                    // Start recording
+                    mediaRecorder.start(100); // Collect data every 100ms
+                    
+                    // Show recording indicator
+                    document.getElementById('recording-indicator').style.display = 'block';
+                    updateExportStatus('Recording animation...');
+                    setProgress(20);
+                    
+                    // Start the animation
+                    previewAnimation();
+                    recordingStartTime = Date.now();
+                    
+                    // Set up the frame capture loop
+                    requestAnimationFrame(captureFrame);
+                    
+                    // Update progress regularly during recording
+                    const progressInterval = setInterval(() => {
+                        if (mediaRecorder && mediaRecorder.state === 'recording') {
+                            const elapsed = Date.now() - recordingStartTime;
+                            const elapsedSeconds = Math.floor(elapsed / 1000);
+                            const estimatedTotalSeconds = Math.floor(animationDuration / 1000);
+                            const remainingSeconds = Math.max(0, estimatedTotalSeconds - elapsedSeconds);
+                            
+                            // Calculate progress percentage (20-80% range during recording)
+                            const progressPercent = Math.min(Math.floor((elapsed / animationDuration) * 60) + 20, 80);
+                            setProgress(progressPercent);
+                            
+                            updateExportStatus(`Recording animation: ${elapsedSeconds}s / ~${estimatedTotalSeconds}s (${remainingSeconds}s remaining)`);
+                        } else {
+                            clearInterval(progressInterval);
+                        }
+                    }, 500); // Update every half second
+                    
+                    // Set a timeout to stop recording after the animation completes
                     setTimeout(() => {
-                        alert(`Export complete! Your ${selectedExportFormat.toUpperCase()} file would be downloaded here.\n\nNote: In production, this would use Canvas recording APIs or server-side rendering with tools like Puppeteer or FFmpeg to create the actual video file.`);
-                        closeExportModal();
-                    }, 500);
+                        clearInterval(progressInterval);
+                        if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                            mediaRecorder.stop();
+                            updateExportStatus('Processing video...');
+                            setProgress(80);
+                        }
+                    }, animationDuration);
+                    
+                } catch (error) {
+                    console.error('MediaRecorder error:', error);
+                    updateExportStatus(`MediaRecorder failed: ${error.message}. Try a different browser.`);
                 }
-            }, 100);
+                
+            } catch (error) {
+                console.error('Export failed:', error);
+                updateExportStatus(`Export failed: ${error.message}`);
+            }
+        }
+        
+        function captureFrame() {
+            if (!mediaRecorder || mediaRecorder.state === 'inactive') return;
+            
+            try {
+                const videoContainer = document.getElementById('video-container');
+                const ctx = recordingCanvas.getContext('2d');
+                
+                // Clear the canvas
+                ctx.clearRect(0, 0, recordingCanvas.width, recordingCanvas.height);
+                
+                // Draw the current state of the animation to the canvas
+                ctx.drawImage(videoContainer, 0, 0, recordingCanvas.width, recordingCanvas.height);
+                
+                // Add a visual indicator that recording is happening (small red dot in corner)
+                const pulseSize = (Date.now() % 1000) < 500 ? 8 : 6; // Pulsing effect
+                ctx.fillStyle = 'rgba(255, 0, 0, 0.8)';
+                ctx.beginPath();
+                ctx.arc(recordingCanvas.width - 20, 20, pulseSize, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Continue capturing frames
+                requestAnimationFrame(captureFrame);
+                
+            } catch (error) {
+                console.error('Frame capture error:', error);
+            }
+        }
+        
+        function handleDataAvailable(event) {
+            if (event.data && event.data.size > 0) {
+                recordedChunks.push(event.data);
+            }
+        }
+        
+        function finalizeRecording() {
+            updateExportStatus('Processing video data...');
+            setProgress(85);
+            
+            try {
+                // Show processing steps with timed updates
+                setTimeout(() => {
+                    updateExportStatus('Combining video frames...');
+                    setProgress(90);
+                    
+                    setTimeout(() => {
+                        // Create a blob from the recorded chunks
+                        const blob = new Blob(recordedChunks, { type: 'video/webm' });
+                        
+                        // Create a download link
+                        const url = URL.createObjectURL(blob);
+                        const downloadLink = document.getElementById('download-link');
+                        downloadLink.href = url;
+                        downloadLink.download = `animation_${new Date().getTime()}.webm`;
+                        
+                        // Show file size
+                        const fileSizeMB = (blob.size / (1024 * 1024)).toFixed(2);
+                        const fileInfoElement = document.createElement('p');
+                        fileInfoElement.innerHTML = `<small>File size: ${fileSizeMB} MB</small>`;
+                        document.getElementById('download-container').appendChild(fileInfoElement);
+                        
+                        // Clean up
+                        if (recordingStream) {
+                            recordingStream.getTracks().forEach(track => track.stop());
+                            recordingStream = null;
+                        }
+                        
+                        // Hide recording indicator and show download button
+                        document.getElementById('recording-indicator').style.display = 'none';
+                        document.getElementById('download-container').style.display = 'block';
+                        
+                        updateExportStatus('Export complete! Your video is ready to download.');
+                        setProgress(100);
+                    }, 800);
+                }, 800);
+                
+            } catch (error) {
+                console.error('Finalization error:', error);
+                updateExportStatus(`Video finalization failed: ${error.message}`);
+                setProgress(0); // Reset progress bar to indicate failure
+            }
+        }
+        
+        function updateExportStatus(message) {
+            document.getElementById('export-status').textContent = message;
+        }
+        
+        function setProgress(percent) {
+            document.getElementById('progressFill').style.width = `${percent}%`;
         }
     </script>
 </body>
