@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SaaS Demo Animation Studio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #000000;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Control Panel */
+        .control-panel {
+            width: 420px;
+            background: #0a0a0a;
+            padding: 30px;
+            overflow-y: auto;
+            border-right: 1px solid #1a1a1a;
+        }
+
+        .control-panel h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 30px;
+            color: #ffffff;
+        }
+
+        .section {
+            margin-bottom: 35px;
+            padding-bottom: 25px;
+            border-bottom: 1px solid #1a1a1a;
+        }
+
+        .section:last-child {
+            border-bottom: none;
+        }
+
+        .section h3 {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 20px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #999;
+        }
+
+        .input-group input[type="text"],
+        .input-group textarea,
+        .input-group select {
+            width: 100%;
+            padding: 12px 16px;
+            background: #111111;
+            border: 1px solid #222;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s ease;
+        }
+
+        .input-group input[type="text"]:focus,
+        .input-group textarea:focus,
+        .input-group select:focus {
+            outline: none;
+            border-color: #333;
+            background: #151515;
+        }
+
+        .input-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .color-input {
+            width: 100%;
+            height: 40px;
+            padding: 0 5px;
+            border: 1px solid #222;
+            border-radius: 8px;
+            background: #111111;
+            cursor: pointer;
+        }
+
+        .file-upload {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .file-upload input[type="file"] {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .file-upload-label {
+            display: block;
+            padding: 16px;
+            background: #111111;
+            border: 2px dashed #222;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 13px;
+            color: #666;
+            transition: all 0.2s ease;
+        }
+
+        .file-upload:hover .file-upload-label {
+            border-color: #333;
+            background: #151515;
+            color: #999;
+        }
+
+        .media-preview {
+            margin-top: 12px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .media-item {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #111;
+            border: 1px solid #222;
+        }
+
+        .media-item img,
+        .media-item video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .remove-btn {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            background: rgba(0, 0, 0, 0.8);
+            color: #999;
+            border: none;
+            border-radius: 4px;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .remove-btn:hover {
+            background: rgba(255, 0, 0, 0.8);
+            color: white;
+        }
+
+        .slider-group {
+            margin-bottom: 24px;
+        }
+
+        .slider-group label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #999;
+        }
+
+        .slider-value {
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .slider {
+            width: 100%;
+            height: 4px;
+            border-radius: 2px;
+            background: #222;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #fff;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .slider::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 0 8px rgba(255, 255, 255, 0.1);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            background: #fff;
+            border: none;
+            border-radius: 8px;
+            color: #000;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            width: 100%;
+            margin-bottom: 10px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid #333;
+            color: #999;
+        }
+
+        .btn-secondary:hover {
+            border-color: #555;
+            color: #fff;
+        }
+
+        /* Preview Area */
+        .preview-area {
+            flex: 1;
+            position: relative;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .preview-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .aspect-ratio-controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 10;
+        }
+        
+        .aspect-ratio-btn {
+            padding: 8px 12px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .aspect-ratio-btn:hover {
+            background: rgba(0, 0, 0, 0.8);
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .aspect-ratio-btn.active {
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .background-media {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 1;
+        }
+
+        .background-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2;
+        }
+
+        #video-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: #000;
+            transition: width 0.3s ease, height 0.3s ease;
+        }
+
+        .animation-stage {
+            position: absolute;
+            z-index: 3;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 40px;
+            perspective: 1200px;
+        }
+
+        /* Input Pill Container */
+        .input-pill {
+            padding: 20px 40px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+        }
+
+        .input-pill::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: 50px;
+            padding: 2px;
+            background: linear-gradient(135deg, var(--gradient-start, #667eea), var(--gradient-end, #764ba2));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            opacity: 0.8;
+        }
+
+        .input-text {
+            font-size: 24px;
+            font-weight: 500;
+            color: #ffffff;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Response Document Container */
+        .response-document {
+            max-width: 600px;
+            max-height: 400px; /* Control the viewport height */
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 16px;
+            position: relative;
+            transform-style: preserve-3d;
+            opacity: 0;
+            transform: translateY(30px);
+            backdrop-filter: blur(10px);
+            overflow: hidden; /* For the scrolling text effect */
+            -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%);
+            mask-image: linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%);
+        }
+
+        .response-document::before {
+            content: '';
+            position: absolute;
+            inset: -1px;
+            border-radius: 16px;
+            padding: 1px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            opacity: 0.6;
+        }
+
+        .response-document p {
+            margin: 0;
+            font-size: 18px;
+            line-height: 1.7;
+            color: rgba(255, 255, 255, 0.8);
+            white-space: pre-wrap; /* Preserve line breaks and spaces */
+        }
+
+        .response-text {
+            font-size: 16px;
+            line-height: 1.6;
+            color: #ffffff;
+            position: relative;
+            z-index: 1;
+            transform: translateY(100%);
+        }
+
+        /* Animations */
+        @keyframes inputReveal {
+            0% {
+                opacity: 0;
+                transform: translateY(30px) rotateX(var(--rotateX, -15deg)) rotateY(var(--rotateY, 0deg));
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) rotateX(var(--rotateX, -15deg)) rotateY(var(--rotateY, 0deg));
+            }
+        }
+        
+        @keyframes inputFadeOut {
+            0% {
+                opacity: 1;
+                transform: translateY(0) rotateX(var(--rotateX, -15deg)) rotateY(var(--rotateY, 0deg));
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-30px) rotateX(var(--rotateX, -15deg)) rotateY(var(--rotateY, 0deg));
+            }
+        }
+
+        @keyframes documentReveal {
+            0% {
+                opacity: 0;
+                transform: translateY(60px) rotateX(var(--rotateX, -15deg)) rotateY(var(--rotateY, 0deg));
+                clip-path: polygon(0 100%, 100% 100%, 100% 100%, 0% 100%);
+            }
+            50% {
+                opacity: 1;
+                transform: translateY(30px) rotateX(var(--rotateX, -15deg)) rotateY(var(--rotateY, 0deg));
+                clip-path: polygon(0 50%, 100% 50%, 100% 100%, 0% 100%);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) rotateX(var(--rotateX, -15deg)) rotateY(var(--rotateY, 0deg));
+                clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+            }
+        }
+        
+        @keyframes scrollReveal {
+            from {
+                transform: translateY(100%);
+            }
+            to {
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes responseFadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: -200% center;
+            }
+            100% {
+                background-position: 200% center;
+            }
+        }
+
+        .shimmer-effect {
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(255, 255, 255, 0.1) 50%, 
+                transparent 100%);
+            background-size: 200% 100%;
+            animation: shimmer 2s ease-out;
+        }
+
+        /* Export Modal */
+        .export-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .export-modal-content {
+            background: #111;
+            padding: 40px;
+            border-radius: 16px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            border: 1px solid #222;
+        }
+
+        .export-modal h2 {
+            margin-bottom: 30px;
+            font-weight: 600;
+            font-size: 20px;
+        }
+
+        .export-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 30px;
+        }
+
+        .export-option {
+            padding: 20px;
+            background: #1a1a1a;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid #222;
+        }
+
+        .export-option:hover {
+            border-color: #444;
+            background: #222;
+        }
+
+        .export-option.selected {
+            border-color: #fff;
+            background: #222;
+        }
+
+        .export-option h3 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .export-option p {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: #222;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="control-panel">
+            <h1>SaaS Demo Animation Studio</h1>
+            
+            <div class="section">
+                <h3>Input & Response</h3>
+                <div class="input-group">
+                    <label for="inputText">User Input Text</label>
+                    <textarea id="inputText" placeholder="What the user types...">Create a landing page for my AI startup</textarea>
+                </div>
+                <div class="input-group">
+                    <label for="responseText">App Response</label>
+                    <textarea id="responseText" placeholder="What the app responds with...">I'll help you create a modern, conversion-focused landing page for your AI startup. Let me design a clean, professional layout that highlights your unique value proposition and drives user engagement.</textarea>
+                </div>
+            </div>
+
+            <div class="section">
+                <h3>Layout & Style</h3>
+                <div class="input-group">
+                    <label for="inputPosition">Input Position</label>
+                    <select id="inputPosition" class="input-group select">
+                        <option value="center">Center</option>
+                        <option value="flex-start">Top</option>
+                        <option value="flex-end">Bottom</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="responsePosition">Response Position</label>
+                    <select id="responsePosition" class="input-group select">
+                        <option value="center">Center</option>
+                        <option value="flex-start">Top</option>
+                        <option value="flex-end">Bottom</option>
+                    </select>
+                </div>
+                <div class="input-group" style="display: flex; align-items: center; gap: 15px;">
+                    <div style="flex: 1;">
+                        <label for="gradientStartColor">Pill Gradient Start</label>
+                        <input type="color" id="gradientStartColor" value="#667eea" class="color-input">
+                    </div>
+                    <div style="flex: 1;">
+                        <label for="gradientEndColor">Pill Gradient End</label>
+                        <input type="color" id="gradientEndColor" value="#764ba2" class="color-input">
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h3>Animation</h3>
+                <div style="display: flex; margin-bottom: 20px;">
+                    <div style="flex: 1;">
+                        <div class="slider-group">
+                            <label>
+                                Input Rotate X
+                                <span class="slider-value" id="inputRotateXValue">-15°</span>
+                            </label>
+                            <input type="range" id="inputRotateX" class="slider" min="-45" max="45" value="-15">
+                        </div>
+                        <div class="slider-group">
+                            <label>
+                                Input Rotate Y
+                                <span class="slider-value" id="inputRotateYValue">0°</span>
+                            </label>
+                            <input type="range" id="inputRotateY" class="slider" min="-45" max="45" value="0">
+                        </div>
+                    </div>
+                    <div style="width: 120px; height: 120px; margin-left: 15px;">
+                        <div id="inputPreviewBox" style="width: 100%; height: 100%; background: rgba(255, 255, 255, 0.05); border-radius: 8px; position: relative; transform-style: preserve-3d; transform: rotateX(-15deg) rotateY(0deg); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);">
+                            <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px;"></div>
+                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 12px; color: rgba(255, 255, 255, 0.5);">Input</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: flex; margin-bottom: 20px;">
+                    <div style="flex: 1;">
+                        <div class="slider-group">
+                            <label>
+                                Response Rotate X
+                                <span class="slider-value" id="responseRotateXValue">-15°</span>
+                            </label>
+                            <input type="range" id="responseRotateX" class="slider" min="-45" max="45" value="-15">
+                        </div>
+                        <div class="slider-group">
+                            <label>
+                                Response Rotate Y
+                                <span class="slider-value" id="responseRotateYValue">0°</span>
+                            </label>
+                            <input type="range" id="responseRotateY" class="slider" min="-45" max="45" value="0">
+                        </div>
+                    </div>
+                    <div style="width: 120px; height: 120px; margin-left: 15px;">
+                        <div id="responsePreviewBox" style="width: 100%; height: 100%; background: rgba(255, 255, 255, 0.03); border-radius: 8px; position: relative; transform-style: preserve-3d; transform: rotateX(-15deg) rotateY(0deg); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);">
+                            <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px;"></div>
+                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 12px; color: rgba(255, 255, 255, 0.5);">Response</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h3>Background</h3>
+                <div class="file-upload">
+                    <input type="file" id="backgroundUpload" accept="image/*,video/*" onchange="handleBackgroundUpload(event)">
+                    <label for="backgroundUpload" class="file-upload-label">
+                        Upload Background Image/Video
+                    </label>
+                </div>
+                <div id="backgroundPreview" class="media-preview"></div>
+            </div>
+
+            <div class="section">
+                <h3>Timing</h3>
+                <div class="slider-group">
+                    <label for="inputDelay">
+                        Input Appear Delay
+                        <span class="slider-value" id="inputDelayValue">0s</span>
+                    </label>
+                    <input type="range" id="inputDelay" class="slider" min="0" max="2" step="0.1" value="0">
+                </div>
+                <div class="slider-group">
+                    <label for="responseDelay">
+                        Response Appear Delay
+                        <span class="slider-value" id="responseDelayValue">1.5s</span>
+                    </label>
+                    <input type="range" id="responseDelay" class="slider" min="0" max="5" step="0.1" value="1.5">
+                </div>
+                <div class="slider-group">
+                    <label for="animationDuration">
+                        Animation Duration
+                        <span class="slider-value" id="animationDurationValue">0.8s</span>
+                    </label>
+                    <input type="range" id="animationDuration" class="slider" min="0.3" max="2" step="0.1" value="0.8">
+                </div>
+            </div>
+
+            <div class="section">
+                <button class="btn" onclick="previewAnimation()">Preview Animation</button>
+                <button class="btn btn-secondary" onclick="resetAnimation()">Reset</button>
+                <button class="btn" onclick="showExportModal()">Export Video</button>
+            </div>
+        </div>
+
+        <div class="preview-area">
+            <div class="aspect-ratio-controls">
+                <button class="aspect-ratio-btn" id="ratio-16-9">16:9</button>
+                <button class="aspect-ratio-btn active" id="ratio-9-16">9:16</button>
+                <button class="aspect-ratio-btn" id="ratio-3-4">3:4</button>
+                <button class="aspect-ratio-btn" id="ratio-full">Full</button>
+            </div>
+            <div class="preview-container" id="previewContainer">
+                <div id="video-container">
+                    <div id="backgroundContainer"></div>
+                    <div class="background-overlay" id="backgroundOverlay" style="display: none;"></div>
+                    <div class="animation-stage" id="animationStage">
+                        <!-- Animation elements will be inserted here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="export-modal" id="exportModal">
+        <div class="export-modal-content">
+            <h2>Export Your Animation</h2>
+            <div class="export-options">
+                <div class="export-option" onclick="selectExportOption('mp4')">
+                    <h3>MP4</h3>
+                    <p>1920x1080</p>
+                </div>
+                <div class="export-option" onclick="selectExportOption('webm')">
+                    <h3>WebM</h3>
+                    <p>With Alpha</p>
+                </div>
+                <div class="export-option" onclick="selectExportOption('gif')">
+                    <h3>GIF</h3>
+                    <p>Animated</p>
+                </div>
+            </div>
+            <button class="btn" onclick="startExport()">Start Export</button>
+            <button class="btn btn-secondary" onclick="closeExportModal()">Cancel</button>
+            <div class="progress-bar" id="progressBar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let backgroundMedia = null;
+        let selectedExportFormat = 'mp4';
+        let animationTimeouts = [];
+        let currentAspectRatio = '9:16'; // Default aspect ratio
+
+        // Initialize all sliders
+        const sliders = [
+            { id: 'inputRotateX', suffix: '°' },
+            { id: 'inputRotateY', suffix: '°' },
+            { id: 'responseRotateX', suffix: '°' },
+            { id: 'responseRotateY', suffix: '°' },
+            { id: 'inputDelay', suffix: 's' },
+            { id: 'responseDelay', suffix: 's' },
+            { id: 'animationDuration', suffix: 's' }
+        ];
+
+        // Function to update 3D preview boxes
+        function update3DPreview() {
+            const inputRotateX = document.getElementById('inputRotateX').value;
+            const inputRotateY = document.getElementById('inputRotateY').value;
+            const responseRotateX = document.getElementById('responseRotateX').value;
+            const responseRotateY = document.getElementById('responseRotateY').value;
+            
+            document.getElementById('inputPreviewBox').style.transform = 
+                `rotateX(${inputRotateX}deg) rotateY(${inputRotateY}deg)`;
+            
+            document.getElementById('responsePreviewBox').style.transform = 
+                `rotateX(${responseRotateX}deg) rotateY(${responseRotateY}deg)`;
+        }
+
+        sliders.forEach(slider => {
+            const element = document.getElementById(slider.id);
+            const valueElement = document.getElementById(slider.id + 'Value');
+            element.addEventListener('input', function(e) {
+                valueElement.textContent = e.target.value + slider.suffix;
+                
+                // Update 3D preview boxes when rotation sliders change
+                if (slider.id.includes('Rotate')) {
+                    update3DPreview();
+                }
+            });
+        });
+        
+        // Initialize 3D preview
+        update3DPreview();
+        
+        // Initialize aspect ratio
+        window.addEventListener('load', function() {
+            setAspectRatio('9:16');
+            
+            // Add event listeners to aspect ratio buttons
+            document.getElementById('ratio-16-9').addEventListener('click', function() {
+                setAspectRatio('16:9');
+            });
+            
+            document.getElementById('ratio-9-16').addEventListener('click', function() {
+                setAspectRatio('9:16');
+            });
+            
+            document.getElementById('ratio-3-4').addEventListener('click', function() {
+                setAspectRatio('3:4');
+            });
+            
+            document.getElementById('ratio-full').addEventListener('click', function() {
+                setAspectRatio('full');
+            });
+        });
+        
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            setAspectRatio(currentAspectRatio);
+        });
+
+        // Background upload handler
+        function handleBackgroundUpload(event) {
+            const file = event.target.files[0];
+            if (file && (file.type.startsWith('image/') || file.type.startsWith('video/'))) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    backgroundMedia = {
+                        type: file.type.startsWith('image/') ? 'image' : 'video',
+                        url: e.target.result,
+                        name: file.name
+                    };
+                    updateBackgroundPreview();
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function updateBackgroundPreview() {
+            const preview = document.getElementById('backgroundPreview');
+            if (backgroundMedia) {
+                preview.innerHTML = `
+                    <div class="media-item">
+                        ${backgroundMedia.type === 'image' 
+                            ? `<img src="${backgroundMedia.url}" alt="${backgroundMedia.name}">` 
+                            : `<video src="${backgroundMedia.url}" muted loop></video>`
+                        }
+                        <button onclick="removeBackground()" class="remove-btn">×</button>
+                    </div>
+                `;
+            } else {
+                preview.innerHTML = '';
+            }
+        }
+
+        function removeBackground() {
+            backgroundMedia = null;
+            updateBackgroundPreview();
+            document.getElementById('backgroundUpload').value = '';
+            document.getElementById('backgroundContainer').innerHTML = '';
+            document.getElementById('backgroundOverlay').style.display = 'none';
+        }
+
+        function previewAnimation() {
+            resetAnimation();
+            const animationStage = document.getElementById('animationStage');
+
+            // Set background
+            const backgroundContainer = document.getElementById('backgroundContainer');
+            const backgroundOverlay = document.getElementById('backgroundOverlay');
+            backgroundContainer.innerHTML = ''; // Clear previous background
+            if (backgroundMedia) {
+                if (backgroundMedia.type === 'image') {
+                    backgroundContainer.innerHTML = `<img src="${backgroundMedia.url}" class="background-media" alt="Background">`;
+                } else {
+                    backgroundContainer.innerHTML = `<video src="${backgroundMedia.url}" class="background-media" autoplay muted loop></video>`;
+                }
+                backgroundOverlay.style.display = 'block';
+            } else {
+                backgroundOverlay.style.display = 'none';
+            }
+
+            // Get values from all controls
+            const inputText = document.getElementById('inputText').value;
+            const responseText = document.getElementById('responseText').value;
+            const animationDuration = parseFloat(document.getElementById('animationDuration').value);
+            const inputDelayEnabled = document.getElementById('inputDelay').checked;
+            const inputInitialDelay = inputDelayEnabled ? 1.5 * 1000 : 0; // ms
+            const responseStartDelay = parseFloat(document.getElementById('responseDelay').value) * 1000;
+
+            // New layout and style controls
+            const inputPosition = document.getElementById('inputPosition').value;
+            const responsePosition = document.getElementById('responsePosition').value;
+            const gradientStartColor = document.getElementById('gradientStartColor').value;
+            const gradientEndColor = document.getElementById('gradientEndColor').value;
+
+            // --- INPUT ANIMATION ---
+            const inputPill = document.createElement('div');
+            inputPill.className = 'input-pill';
+            inputPill.textContent = inputText;
+            inputPill.style.setProperty('--gradient-start', gradientStartColor);
+            inputPill.style.setProperty('--gradient-end', gradientEndColor);
+            
+            const inputRotateX = document.getElementById('inputRotateX').value;
+            const inputRotateY = document.getElementById('inputRotateY').value;
+            inputPill.style.transform = `rotateX(${inputRotateX}deg) rotateY(${inputRotateY}deg)`;
+
+            const inputRevealTimeout = setTimeout(() => {
+                animationStage.style.justifyContent = inputPosition;
+                animationStage.appendChild(inputPill);
+                inputPill.style.animation = `reveal ${animationDuration}s cubic-bezier(0.2, 0.8, 0.2, 1) forwards`;
+            }, inputInitialDelay);
+            animationTimeouts.push(inputRevealTimeout);
+
+            const inputFadeOutTimeout = setTimeout(() => {
+                inputPill.style.animation = `inputFadeOut ${animationDuration * 0.8}s cubic-bezier(0.4, 0, 0.2, 1) forwards`;
+            }, inputInitialDelay + (animationDuration * 1000) + 500);
+            animationTimeouts.push(inputFadeOutTimeout);
+            
+            // --- RESPONSE ANIMATION ---
+            const totalInputAnimationTime = inputInitialDelay + (animationDuration * 1000) + 500 + (animationDuration * 0.8 * 1000);
+
+            const responseRevealTimeout = setTimeout(() => {
+                const responseDocument = document.createElement('div');
+                responseDocument.className = 'response-document';
+
+                const responseTextElement = document.createElement('p');
+                responseTextElement.textContent = responseText;
+                responseDocument.appendChild(responseTextElement);
+                
+
+
+                animationStage.style.justifyContent = responsePosition;
+                animationStage.appendChild(responseDocument);
+                responseDocument.style.animation = `documentReveal ${animationDuration * 1.2}s cubic-bezier(0.2, 0.8, 0.2, 1) forwards`;
+
+                // --- SCROLL & FADE-OUT LOGIC ---
+                const containerHeight = responseDocument.clientHeight;
+                const textHeight = responseTextElement.scrollHeight;
+                let scrollDuration = 0;
+
+                if (textHeight > containerHeight) {
+                    const scrollSpeed = 70; // pixels per second
+                    scrollDuration = textHeight / scrollSpeed;
+                    
+                    const animationName = `scroll-anim-${Date.now()}`;
+                    const keyframes = `
+                        @keyframes ${animationName} {
+                            from { transform: translateY(${containerHeight * 0.8}px); }
+                            to { transform: translateY(-${textHeight}px); }
+                        }
+                    `;
+                    const styleSheet = document.createElement('style');
+                    styleSheet.id = animationName;
+                    styleSheet.innerText = keyframes;
+                    document.head.appendChild(styleSheet);
+
+                    responseTextElement.style.animation = `${animationName} ${scrollDuration}s linear forwards`;
+                }
+
+                // Fade out the response document after it's done
+                const responseFadeOutDelay = (scrollDuration * 1000) + 1000; // 1s after scroll finishes
+                const responseFadeOutTimeout = setTimeout(() => {
+                    responseDocument.style.animation = `responseFadeOut ${animationDuration}s forwards`;
+                }, responseFadeOutDelay);
+                animationTimeouts.push(responseFadeOutTimeout);
+
+            }, Math.max(totalInputAnimationTime, responseStartDelay));
+            animationTimeouts.push(responseRevealTimeout);
+        }
+
+        function resetAnimation() {
+            animationTimeouts.forEach(item => {
+                if (typeof item === 'number') clearTimeout(item);
+            });
+            animationTimeouts = [];
+            
+            // Remove old keyframe stylesheets
+            const oldStyles = document.querySelectorAll('style[id^="scroll-anim-"]');
+            oldStyles.forEach(s => document.head.removeChild(s));
+
+            document.getElementById('animationStage').innerHTML = '';
+        }
+        
+        function setAspectRatio(ratio) {
+            currentAspectRatio = ratio;
+            const videoContainer = document.getElementById('video-container');
+            const previewContainer = document.getElementById('previewContainer');
+            
+            // Reset any previous styles
+            videoContainer.style.width = '';
+            videoContainer.style.height = '';
+            videoContainer.style.border = '';
+            
+            // Update active button state
+            document.querySelectorAll('.aspect-ratio-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if(btn.textContent.toLowerCase() === ratio.toLowerCase()) {
+                    btn.classList.add('active');
+                }
+            });
+
+            const containerWidth = previewContainer.clientWidth;
+            const containerHeight = previewContainer.clientHeight;
+            
+            if (ratio === 'full') {
+                videoContainer.style.width = '100%';
+                videoContainer.style.height = '100%';
+                return;
+            }
+            
+            const [width, height] = ratio.split(':').map(Number);
+            const aspectRatio = width / height;
+            
+            let stageWidth, stageHeight;
+            
+            if (containerWidth / containerHeight > aspectRatio) {
+                stageHeight = containerHeight * 0.95; // Use 95% of height for some padding
+                stageWidth = stageHeight * aspectRatio;
+            } else {
+                stageWidth = containerWidth * 0.95; // Use 95% of width for some padding
+                stageHeight = stageWidth / aspectRatio;
+            }
+            
+            videoContainer.style.width = `${stageWidth}px`;
+            videoContainer.style.height = `${stageHeight}px`;
+            videoContainer.style.border = '1px solid rgba(255, 255, 255, 0.2)';
+        }
+
+        function showExportModal() {
+            document.getElementById('exportModal').style.display = 'flex';
+        }
+
+        function closeExportModal() {
+            document.getElementById('exportModal').style.display = 'none';
+            document.getElementById('progressBar').style.display = 'none';
+            document.getElementById('progressFill').style.width = '0%';
+        }
+
+        function selectExportOption(format) {
+            selectedExportFormat = format;
+            document.querySelectorAll('.export-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            event.target.closest('.export-option').classList.add('selected');
+        }
+
+        function startExport() {
+            const progressBar = document.getElementById('progressBar');
+            const progressFill = document.getElementById('progressFill');
+            
+            progressBar.style.display = 'block';
+            
+            // Simulate export progress
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += 5;
+                progressFill.style.width = progress + '%';
+                
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        alert(`Export complete! Your ${selectedExportFormat.toUpperCase()} file would be downloaded here.\n\nNote: In production, this would use Canvas recording APIs or server-side rendering with tools like Puppeteer or FFmpeg to create the actual video file.`);
+                        closeExportModal();
+                    }, 500);
+                }
+            }, 100);
+        }
+    </script>
+</body>
+</html>
