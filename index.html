@@ -395,6 +395,10 @@
             overflow: hidden;
             border-right: 3px solid white;
             animation: typing-cursor 0.7s step-end infinite;
+            width: 0; /* Start with zero width to hide text */
+            max-width: 100%; /* Allow expansion to full width */
+            opacity: 0; /* Start fully transparent */
+            transition: opacity 0.1s; /* Fade in smoothly */
         }
         
         @keyframes typing-cursor {
@@ -978,11 +982,18 @@
             inputPill.style.setProperty('--gradient-start', gradientStartColor);
             inputPill.style.setProperty('--gradient-end', gradientEndColor);
             
+            // Create a container for the typing text to ensure proper width control
+            const typingContainer = document.createElement('div');
+            typingContainer.style.display = 'inline-block';
+            
             // Create typing text element
             const typingTextElement = document.createElement('span');
             typingTextElement.className = 'typing-text';
             typingTextElement.textContent = inputText;
-            inputPill.appendChild(typingTextElement);
+            
+            // Add the typing text to the container, then to the pill
+            typingContainer.appendChild(typingTextElement);
+            inputPill.appendChild(typingContainer);
             
             const inputRotateX = document.getElementById('inputRotateX').value;
             const inputRotateY = document.getElementById('inputRotateY').value;
@@ -1002,14 +1013,14 @@
                     const typingDuration = Math.min(inputText.length * 50, animationDuration * 500); // 50ms per character, capped
                     
                     // Animate typing with CSS transition
-                    typingTextElement.style.transition = `width ${typingDuration}ms steps(${inputText.length}, end)`;
-                    typingTextElement.style.width = '0';
+                    typingTextElement.style.transition = `width ${typingDuration}ms steps(${inputText.length}, end), opacity 0.2s ease`;
                     
                     // Force reflow
                     void typingTextElement.offsetWidth;
                     
                     // Start typing animation
                     typingTextElement.style.width = '100%';
+                    typingTextElement.style.opacity = '1';
                 }, 200); // Small delay after pill appears
             }, inputDelayValue); // Use the actual input delay value
             animationTimeouts.push(inputRevealTimeout);
